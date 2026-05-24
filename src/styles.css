@@ -210,6 +210,49 @@ textarea {
   gap: 10px;
 }
 
+.file-upload {
+  min-height: 40px;
+  background: var(--panel-3);
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.file-upload input {
+  display: none;
+}
+
+.roster-editor {
+  margin-top: 14px;
+  display: grid;
+  gap: 8px;
+}
+
+.roster-editor-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.roster-editor-head span {
+  color: var(--brand);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.roster-edit-row {
+  display: grid;
+  grid-template-columns: 74px minmax(150px, 1fr) 86px 118px 44px;
+  gap: 8px;
+  align-items: center;
+}
+
+.roster-edit-row .ghost-button {
+  min-height: 42px;
+  padding: 0;
+}
+
 .gamebar {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(240px, 340px) minmax(0, 1fr);
@@ -720,6 +763,28 @@ textarea {
   font-variant-numeric: tabular-nums;
 }
 
+.spot-adjuster {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.spot-adjuster label {
+  display: grid;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.spot-adjuster input {
+  min-height: 38px;
+  text-align: center;
+  font-weight: 900;
+}
+
 .stats-grid {
   margin-top: 12px;
   display: grid;
@@ -1004,6 +1069,11 @@ textarea {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  .roster-edit-row {
+    grid-template-columns: 74px minmax(150px, 1fr) 86px 118px 44px;
+    overflow-x: auto;
+  }
+
   .content-grid {
     grid-template-columns: 1fr;
   }
@@ -1094,6 +1164,35 @@ textarea {
 
   .setup-grid {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .roster-editor {
+    max-height: 420px;
+    overflow: auto;
+    padding-right: 2px;
+  }
+
+  .roster-editor-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .roster-edit-row {
+    grid-template-columns: 64px minmax(0, 1fr) 70px;
+    padding: 10px;
+    border: 1px solid #dce6f1;
+    border-radius: 16px;
+    background: #f2f6fb;
+  }
+
+  .roster-edit-row select {
+    grid-column: 1 / 3;
+  }
+
+  .roster-edit-row .ghost-button {
+    grid-column: 3;
+    grid-row: 1 / 3;
+    align-self: stretch;
   }
 
   input,
@@ -1568,6 +1667,12 @@ textarea {
   }
 
   .yard-adjuster strong {
+    color: #102033;
+  }
+
+  .spot-adjuster input {
+    background: #f2f6fb;
+    border-color: #dce6f1;
     color: #102033;
   }
 

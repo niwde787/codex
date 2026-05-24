@@ -235,6 +235,13 @@ const loadProfiles = (): SavedProfile[] => {
 
 const sanitizeFilename = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'livesnaps';
 
+const csvCell = (value: string | number) => {
+  const text = String(value);
+  return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+};
+
+const csvRow = (values: Array<string | number>) => values.map(csvCell).join(',');
+
 const downloadText = (filename: string, content: string, type = 'text/plain') => {
   const blob = new Blob([content], { type });
   const url = window.URL.createObjectURL(blob);
@@ -524,19 +531,58 @@ function App() {
     setSelectedPlayers(imported.slice(0, 11).map((player) => player.id));
   };
 
+  const updatePlayer = (id: number, patch: Partial<Player>) => {
+    setRoster((current) => current.map((player) => (player.id === id ? { ...player, ...patch } : player)));
+  };
+
+  const addPlayer = () => {
+    const nextNumber = Math.max(0, ...roster.map((player) => player.number)) + 1;
+    const player: Player = {
+      id: Date.now(),
+      number: nextNumber,
+      name: `Player ${nextNumber}`,
+      role: 'ATH',
+      status: 'Ready',
+    };
+    setRoster((current) => [...current, player]);
+  };
+
+  const removePlayer = (id: number) => {
+    setRoster((current) => current.filter((player) => player.id !== id));
+    setSelectedPlayers((current) => current.filter((playerId) => playerId !== id));
+  };
+
   const exportRoster = () => {
-    const rows = ['number,name,role,status', ...roster.map((player) => `${player.number},${player.name},${player.role},${player.status}`)];
+    const rows = ['number,name,role,status', ...roster.map((player) => csvRow([player.number, player.name, player.role, player.status]))];
     downloadText(`${sanitizeFilename(gameName)}-roster.csv`, rows.join('\n'), 'text/csv');
+  };
+
+  const exportGameBackup = () => {
+    const state = captureSnapshot();
+    downloadText(`${sanitizeFilename(gameName)}-backup.json`, JSON.stringify({ exportedAt: new Date().toISOString(), state }, null, 2), 'application/json');
+  };
+
+  const importGameBackup = async (file: File | undefined) => {
+    if (!file) return;
+    const raw = await file.text();
+    const parsed = JSON.parse(raw);
+    restoreSnapshot(hydrateState(parsed.state ?? parsed));
   };
 
   const exportReport = () => {
     const rows = [
-      `Game,${gameName}`,
-      `Teams,${homeTeam},${awayTeam}`,
-      `Score,${ourScore},${oppScore}`,
+      csvRow(['Game', gameName]),
+      csvRow(['Teams', homeTeam, awayTeam]),
+      csvRow(['Score', ourScore, oppScore]),
+      csvRow(['Quarter', quarter]),
+      csvRow(['Clock', formatClock(clock)]),
+      csvRow(['Roster Count', roster.length]),
       '',
       'quarter,clock,phase,result,yards,penalty,down,distance,yardLine,score,note',
-      ...plays.slice().reverse().map((play) => [play.quarter, play.clock, play.phase, play.result, play.yards, play.penalty, play.down, play.distance, play.yardLine, play.score, play.note].join(',')),
+      ...plays.slice().reverse().map((play) => csvRow([play.quarter, play.clock, play.phase, play.result, play.yards, play.penalty, play.down, play.distance, play.yardLine, play.score, play.note])),
+      '',
+      'number,name,role,status,selected',
+      ...roster.map((player) => csvRow([player.number, player.name, player.role, player.status, selectedPlayers.includes(player.id) ? 'yes' : 'no'])),
     ];
     downloadText(`${sanitizeFilename(gameName)}-play-report.csv`, rows.join('\n'), 'text/csv');
   };
@@ -575,6 +621,20 @@ function App() {
           <strong>{penaltyYards > 0 ? `+${penaltyYards}` : penaltyYards}</strong>
           <button onClick={() => setPenaltyYards((value) => value + 5)}>+</button>
         </div>
+      </div>
+      <div className="spot-adjuster">
+        <label>
+          Down
+          <input type="number" min="1" max="4" value={down} onChange={(event) => setDown(Math.min(4, Math.max(1, Number(event.target.value) || 1)))} />
+        </label>
+        <label>
+          To Go
+          <input type="number" min="1" max="99" value={distance} onChange={(event) => setDistance(Math.min(99, Math.max(1, Number(event.target.value) || 10)))} />
+        </label>
+        <label>
+          Ball
+          <input type="number" min="1" max="99" value={yardLine} onChange={(event) => setYardLine(Math.min(99, Math.max(1, Number(event.target.value) || 25)))} />
+        </label>
       </div>
     </>
   );
@@ -634,8 +694,46 @@ function App() {
               <div className="utility-row">
                 <button className="ghost-button" onClick={importRoster}><Upload size={16} />Import Roster</button>
                 <button className="ghost-button" onClick={exportRoster}><Download size={16} />Export Roster</button>
+                <button className="ghost-button" onClick={exportGameBackup}><Download size={16} />Backup Game</button>
+                <label className="ghost-button file-upload">
+                  <Upload size={16} />
+                  Restore Game
+                  <input
+                    type="file"
+                    accept="application/json,.json"
+                    onChange={(event) => {
+                      importGameBackup(event.target.files?.[0]);
+                      event.currentTarget.value = '';
+                    }}
+                  />
+                </label>
                 <button className="ghost-button" onClick={() => setRoster(defaultRoster)}><RotateCcw size={16} />Demo Roster</button>
               </div>
+            </div>
+            <div className="roster-editor">
+              <div className="roster-editor-head">
+                <span>Players</span>
+                <button className="ghost-button" onClick={addPlayer}><Plus size={16} />Add Player</button>
+              </div>
+              {roster.map((player) => (
+                <div className="roster-edit-row" key={player.id}>
+                  <input
+                    aria-label="Number"
+                    type="number"
+                    min="0"
+                    value={player.number}
+                    onChange={(event) => updatePlayer(player.id, { number: Number(event.target.value) || 0 })}
+                  />
+                  <input aria-label="Name" value={player.name} onChange={(event) => updatePlayer(player.id, { name: event.target.value })} />
+                  <input aria-label="Role" value={player.role} onChange={(event) => updatePlayer(player.id, { role: event.target.value.toUpperCase().slice(0, 4) })} />
+                  <select value={player.status} aria-label="Status" onChange={(event) => updatePlayer(player.id, { status: event.target.value as PlayerStatus })}>
+                    <option value="Ready">Ready</option>
+                    <option value="Rest">Rest</option>
+                    <option value="Watch">Watch</option>
+                  </select>
+                  <button className="ghost-button danger" onClick={() => removePlayer(player.id)}><Trash2 size={16} /></button>
+                </div>
+              ))}
             </div>
           </section>
         )}
