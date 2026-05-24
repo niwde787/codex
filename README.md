@@ -8,11 +8,14 @@ Codex is a sideline-first youth football play tracking console rebuilt as a Reac
 - Mobile layout inspired by modern sports apps, with Game, Roster, and Clock views.
 - One-tap play result logging for offense, defense, and special teams.
 - Manual yard adjustment before saving a play.
+- Penalty adjustment before saving a play.
 - Score, down, distance, yard line, and recent-play updates after each save.
 - Running game clock with automatic stop at 0:00.
-- Roster selection persisted locally in the browser.
+- Saved game profiles persisted locally in the browser.
+- Editable game setup for teams, quarter, clock, and yard line.
+- Roster import/export through CSV.
 - Undo and reset controls for sideline correction.
-- Local state persistence through `localStorage`.
+- Play report export through CSV.
 
 ## Scripts
 

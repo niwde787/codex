@@ -39,13 +39,37 @@ body {
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
 }
 
 button {
   border: 0;
   cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel-3);
+  color: var(--text);
+  padding: 9px 11px;
+}
+
+textarea {
+  min-height: 118px;
+  resize: vertical;
 }
 
 .app-shell {
@@ -115,6 +139,75 @@ button {
   padding: 16px;
   display: grid;
   gap: 14px;
+}
+
+.management-bar,
+.setup-panel {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(21, 31, 45, 0.96), rgba(12, 18, 27, 0.96));
+  box-shadow: var(--shadow);
+}
+
+.management-bar {
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 14px;
+}
+
+.management-bar span {
+  display: block;
+  color: var(--brand);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.management-bar strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 20px;
+}
+
+.utility-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.utility-row select {
+  width: min(240px, 42vw);
+}
+
+.setup-panel {
+  padding: 14px;
+}
+
+.setup-grid {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.setup-grid label,
+.import-panel label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.import-panel {
+  margin-top: 12px;
+  display: grid;
+  gap: 10px;
 }
 
 .gamebar {
@@ -220,6 +313,13 @@ button {
   margin-top: 8px;
 }
 
+.timeout-button {
+  width: fit-content;
+  min-height: 20px;
+  padding: 4px 0;
+  background: transparent;
+}
+
 .timeout-row i {
   width: 18px;
   height: 8px;
@@ -266,10 +366,17 @@ button {
 }
 
 .down-distance b,
-.down-distance span {
+.down-distance span,
+.down-distance button {
   padding: 5px 8px;
   background: rgba(255, 255, 255, 0.06);
   border-radius: 999px;
+}
+
+.down-distance button {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 900;
 }
 
 .clock-toggle {
@@ -613,6 +720,34 @@ button {
   font-variant-numeric: tabular-nums;
 }
 
+.stats-grid {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.stats-grid div {
+  min-height: 62px;
+  display: grid;
+  align-content: center;
+  gap: 3px;
+  padding: 10px;
+  border-radius: 14px;
+  background: var(--panel-3);
+}
+
+.stats-grid span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.stats-grid strong {
+  font-size: 24px;
+}
+
 .roster-card {
   overflow: hidden;
   display: flex;
@@ -727,7 +862,7 @@ button {
 
   .console {
     height: 100vh;
-    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr);
     padding: 16px 16px 14px;
     gap: 14px;
     overflow: hidden;
@@ -780,9 +915,15 @@ button {
 .ghost-button {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   padding: 0 12px;
   color: var(--muted);
+  white-space: nowrap;
+}
+
+.ghost-button.danger {
+  color: var(--defense);
 }
 
 .ghost-button:disabled {
@@ -854,6 +995,15 @@ button {
 }
 
 @media (max-width: 1100px) {
+  .management-bar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .setup-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .content-grid {
     grid-template-columns: 1fr;
   }
@@ -912,6 +1062,48 @@ button {
     gap: 10px;
   }
 
+  .management-bar,
+  .setup-panel {
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+  }
+
+  .management-bar {
+    align-items: stretch;
+  }
+
+  .management-bar strong {
+    font-size: 18px;
+  }
+
+  .utility-row,
+  .utility-row select {
+    width: 100%;
+  }
+
+  .utility-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .utility-row select {
+    grid-column: 1 / -1;
+  }
+
+  .setup-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  input,
+  select,
+  textarea {
+    background: #f2f6fb;
+    color: #102033;
+    border-color: #dce6f1;
+  }
+
   .gamebar {
     grid-template-columns: 1fr;
     gap: 8px;
@@ -944,7 +1136,8 @@ button {
   }
 
   .down-distance b,
-  .down-distance span {
+  .down-distance span,
+  .down-distance button {
     background: rgba(255, 255, 255, 0.14);
     color: rgba(255, 255, 255, 0.92);
   }
@@ -1226,7 +1419,8 @@ button {
   .result-grid button,
   .roster-chip,
   .play-row,
-  .empty-log {
+  .empty-log,
+  .stats-grid div {
     background: #f2f6fb;
   }
 
