@@ -1,0 +1,14 @@
+node_modules
+dist
+.env
+.DS_Store
+*.log
+desktop-check.png
+landscape-1920x1080.png
+mobile-check.png
+mobile-clock.png
+mobile-game.png
+mobile-result-sheet.png
+mobile-roster.png
+ipad-landscape.png
+ipad-mini-landscape.png
